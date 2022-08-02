@@ -57,11 +57,9 @@ class MLUtils(object):
         v = _convert_to_vector(p.features)
         if isinstance(v, SparseVector):
             nnz = len(v.indices)
-            for i in range(nnz):
-                items.append(str(v.indices[i] + 1) + ":" + str(v.values[i]))
+            items.extend(f"{str(v.indices[i] + 1)}:{str(v.values[i])}" for i in range(nnz))
         else:
-            for i in range(len(v)):
-                items.append(str(i + 1) + ":" + str(v[i]))
+            items.extend(f"{str(i + 1)}:{str(v[i])}" for i in range(len(v)))
         return " ".join(items)
 
     @staticmethod
@@ -206,12 +204,11 @@ class MLUtils(object):
         the end of the input vector.
         """
         vec = _convert_to_vector(data)
-        if isinstance(vec, SparseVector):
-            newIndices = np.append(vec.indices, len(vec))
-            newValues = np.append(vec.values, 1.0)
-            return SparseVector(len(vec) + 1, newIndices, newValues)
-        else:
+        if not isinstance(vec, SparseVector):
             return _convert_to_vector(np.append(vec.toArray(), 1.0))
+        newIndices = np.append(vec.indices, len(vec))
+        newValues = np.append(vec.values, 1.0)
+        return SparseVector(len(vec) + 1, newIndices, newValues)
 
     @staticmethod
     @since("1.5.0")
@@ -268,7 +265,7 @@ class MLUtils(object):
         True
         """
         if not isinstance(dataset, DataFrame):
-            raise TypeError("Input dataset must be a DataFrame but got {}.".format(type(dataset)))
+            raise TypeError(f"Input dataset must be a DataFrame but got {type(dataset)}.")
         return callMLlibFunc("convertVectorColumnsToML", dataset, list(cols))
 
     @staticmethod
@@ -317,7 +314,7 @@ class MLUtils(object):
         True
         """
         if not isinstance(dataset, DataFrame):
-            raise TypeError("Input dataset must be a DataFrame but got {}.".format(type(dataset)))
+            raise TypeError(f"Input dataset must be a DataFrame but got {type(dataset)}.")
         return callMLlibFunc("convertVectorColumnsFromML", dataset, list(cols))
 
     @staticmethod
@@ -366,7 +363,7 @@ class MLUtils(object):
         True
         """
         if not isinstance(dataset, DataFrame):
-            raise TypeError("Input dataset must be a DataFrame but got {}.".format(type(dataset)))
+            raise TypeError(f"Input dataset must be a DataFrame but got {type(dataset)}.")
         return callMLlibFunc("convertMatrixColumnsToML", dataset, list(cols))
 
     @staticmethod
@@ -415,7 +412,7 @@ class MLUtils(object):
         True
         """
         if not isinstance(dataset, DataFrame):
-            raise TypeError("Input dataset must be a DataFrame but got {}.".format(type(dataset)))
+            raise TypeError(f"Input dataset must be a DataFrame but got {type(dataset)}.")
         return callMLlibFunc("convertMatrixColumnsFromML", dataset, list(cols))
 
 
@@ -461,9 +458,9 @@ class JavaSaveable(Saveable):
     def save(self, sc, path):
         """Save this model to the given path."""
         if not isinstance(sc, SparkContext):
-            raise TypeError("sc should be a SparkContext, got type %s" % type(sc))
+            raise TypeError(f"sc should be a SparkContext, got type {type(sc)}")
         if not isinstance(path, str):
-            raise TypeError("path should be a string, got type %s" % type(path))
+            raise TypeError(f"path should be a string, got type {type(path)}")
         self._java_model.save(sc._jsc.sc(), path)
 
 

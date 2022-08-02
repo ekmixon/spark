@@ -368,8 +368,13 @@ class Summarizer(object):
     @staticmethod
     def _get_single_metric(col, weightCol, metric):
         col, weightCol = Summarizer._check_param(col, weightCol)
-        return Column(JavaWrapper._new_java_obj("org.apache.spark.ml.stat.Summarizer." + metric,
-                                                col._jc, weightCol._jc))
+        return Column(
+            JavaWrapper._new_java_obj(
+                f"org.apache.spark.ml.stat.Summarizer.{metric}",
+                col._jc,
+                weightCol._jc,
+            )
+        )
 
     @staticmethod
     def metrics(*metrics):

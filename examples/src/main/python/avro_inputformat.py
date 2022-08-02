@@ -43,13 +43,14 @@ $ ./bin/spark-submit --driver-class-path /path/to/example/jar \
 {u'favorite_color': None, u'name': u'Alyssa'}
 {u'favorite_color': u'red', u'name': u'Ben'}
 """
+
 import sys
 
 from functools import reduce
 from pyspark.sql import SparkSession
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2 and len(sys.argv) != 3:
+    if len(sys.argv) not in [2, 3]:
         print("""
         Usage: avro_inputformat <data_file> [reader_schema_file]
 

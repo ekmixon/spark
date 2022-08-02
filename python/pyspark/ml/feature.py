@@ -2976,12 +2976,11 @@ class QuantileDiscretizer(JavaEstimator, HasInputCol, HasOutputCol, HasInputCols
                               inputCol=self.getInputCol(),
                               outputCol=self.getOutputCol(),
                               handleInvalid=self.getHandleInvalid())
-        else:
-            splitsArrayList = [list(x) for x in list(java_model.getSplitsArray())]
-            return Bucketizer(splitsArray=splitsArrayList,
-                              inputCols=self.getInputCols(),
-                              outputCols=self.getOutputCols(),
-                              handleInvalid=self.getHandleInvalid())
+        splitsArrayList = [list(x) for x in list(java_model.getSplitsArray())]
+        return Bucketizer(splitsArray=splitsArrayList,
+                          inputCols=self.getInputCols(),
+                          outputCols=self.getOutputCols(),
+                          handleInvalid=self.getHandleInvalid())
 
 
 class _RobustScalerParams(HasInputCol, HasOutputCol, HasRelativeError):
@@ -5217,7 +5216,7 @@ class RFormula(JavaEstimator, _RFormulaParams, JavaMLReadable, JavaMLWritable):
 
     def __str__(self):
         formulaStr = self.getFormula() if self.isDefined(self.formula) else ""
-        return "RFormula(%s) (uid=%s)" % (formulaStr, self.uid)
+        return f"RFormula({formulaStr}) (uid={self.uid})"
 
 
 class RFormulaModel(JavaModel, _RFormulaParams, JavaMLReadable, JavaMLWritable):
@@ -5230,7 +5229,7 @@ class RFormulaModel(JavaModel, _RFormulaParams, JavaMLReadable, JavaMLWritable):
 
     def __str__(self):
         resolvedFormula = self._call_java("resolvedFormula")
-        return "RFormulaModel(%s) (uid=%s)" % (resolvedFormula, self.uid)
+        return f"RFormulaModel({resolvedFormula}) (uid={self.uid})"
 
 
 class _SelectorParams(HasFeaturesCol, HasOutputCol, HasLabelCol):
@@ -6002,7 +6001,7 @@ if __name__ == "__main__":
 
     globs = globals().copy()
     features = pyspark.ml.feature.__dict__.copy()
-    globs.update(features)
+    globs |= features
 
     # The small batch size here ensures that we see multiple batches,
     # even in these small test examples:

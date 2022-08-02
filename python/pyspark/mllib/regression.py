@@ -65,7 +65,7 @@ class LabeledPoint(object):
         return "(" + ",".join((str(self.label), str(self.features))) + ")"
 
     def __repr__(self):
-        return "LabeledPoint(%s, %s)" % (self.label, self.features)
+        return f"LabeledPoint({self.label}, {self.features})"
 
 
 class LinearModel(object):
@@ -209,8 +209,7 @@ class LinearRegressionModel(LinearRegressionModelBase):
             sc._jsc.sc(), path)
         weights = _java2py(sc, java_model.weights())
         intercept = java_model.intercept()
-        model = LinearRegressionModel(weights, intercept)
-        return model
+        return LinearRegressionModel(weights, intercept)
 
 
 # train_func should take two parameters, namely data and initial_weights, and
@@ -220,7 +219,10 @@ def _regression_train_wrapper(train_func, modelClass, data, initial_weights):
     from pyspark.mllib.classification import LogisticRegressionModel
     first = data.first()
     if not isinstance(first, LabeledPoint):
-        raise TypeError("data should be an RDD of LabeledPoint, but got %s" % type(first))
+        raise TypeError(
+            f"data should be an RDD of LabeledPoint, but got {type(first)}"
+        )
+
     if initial_weights is None:
         initial_weights = [0.0] * len(data.first().features)
     if (modelClass == LogisticRegressionModel):
@@ -388,8 +390,7 @@ class LassoModel(LinearRegressionModelBase):
             sc._jsc.sc(), path)
         weights = _java2py(sc, java_model.weights())
         intercept = java_model.intercept()
-        model = LassoModel(weights, intercept)
-        return model
+        return LassoModel(weights, intercept)
 
 
 class LassoWithSGD(object):
@@ -542,8 +543,7 @@ class RidgeRegressionModel(LinearRegressionModelBase):
             sc._jsc.sc(), path)
         weights = _java2py(sc, java_model.weights())
         intercept = java_model.intercept()
-        model = RidgeRegressionModel(weights, intercept)
-        return model
+        return RidgeRegressionModel(weights, intercept)
 
 
 class RidgeRegressionWithSGD(object):
@@ -784,8 +784,7 @@ class StreamingLinearAlgorithm(object):
 
     def _validate(self, dstream):
         if not isinstance(dstream, DStream):
-            raise TypeError(
-                "dstream should be a DStream object, got %s" % type(dstream))
+            raise TypeError(f"dstream should be a DStream object, got {type(dstream)}")
         if not self._model:
             raise ValueError(
                 "Model must be initialized using setInitialWeights")

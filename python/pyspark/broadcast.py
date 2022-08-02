@@ -108,8 +108,7 @@ class Broadcast(object):
         except pickle.PickleError:
             raise
         except Exception as e:
-            msg = "Could not serialize broadcast: %s: %s" \
-                  % (e.__class__.__name__, str(e))
+            msg = f"Could not serialize broadcast: {e.__class__.__name__}: {str(e)}"
             print_exec(sys.stderr)
             raise pickle.PicklingError(msg)
         f.close()
@@ -192,8 +191,7 @@ class BroadcastPickleRegistry(threading.local):
         self.__dict__.setdefault("_registry", set())
 
     def __iter__(self):
-        for bcast in self._registry:
-            yield bcast
+        yield from self._registry
 
     def add(self, bcast):
         self._registry.add(bcast)

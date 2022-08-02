@@ -61,7 +61,7 @@ items in the preceding sets.
     # Add empty dependencies where needed.
     data.update({item: set() for item in extra_items_in_deps})
     while True:
-        ordered = set(item for item, dep in data.items() if len(dep) == 0)
+        ordered = {item for item, dep in data.items() if len(dep) == 0}
         if not ordered:
             break
         yield ordered
@@ -69,8 +69,9 @@ items in the preceding sets.
                 for item, dep in data.items()
                 if item not in ordered}
     if len(data) != 0:
-        raise ValueError('Cyclic dependencies exist among these items: {}'.format(
-            ', '.join(repr(x) for x in data.items())))
+        raise ValueError(
+            f"Cyclic dependencies exist among these items: {', '.join((repr(x) for x in data.items()))}"
+        )
 
 
 def toposort_flatten(data, sort=True):

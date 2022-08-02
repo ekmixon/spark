@@ -139,10 +139,7 @@ def _load_from_socket(port, auth_secret, function, all_gather_message=None):
 
     # Collect result.
     len = read_int(sockfile)
-    res = []
-    for i in range(len):
-        res.append(UTF8Deserializer().loads(sockfile))
-
+    res = [UTF8Deserializer().loads(sockfile) for _ in range(len)]
     # Release resources.
     sockfile.close()
     sock.close()
@@ -264,9 +261,8 @@ class BarrierTaskContext(TaskContext):
         if self._port is None or self._secret is None:
             raise RuntimeError("Not supported to call getTaskInfos() before initialize " +
                                "BarrierTaskContext.")
-        else:
-            addresses = self._localProperties.get("addresses", "")
-            return [BarrierTaskInfo(h.strip()) for h in addresses.split(",")]
+        addresses = self._localProperties.get("addresses", "")
+        return [BarrierTaskInfo(h.strip()) for h in addresses.split(",")]
 
 
 class BarrierTaskInfo(object):

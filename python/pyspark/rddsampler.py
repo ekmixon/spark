@@ -38,20 +38,19 @@ class RDDSamplerBase(object):
         return self._random.random()
 
     def getPoissonSample(self, mean):
+        k = 0
         # Using Knuth's algorithm described in
         # http://en.wikipedia.org/wiki/Poisson_distribution
         if mean < 20.0:
             # one exp and k+1 random calls
             l = math.exp(-mean)
             p = self._random.random()
-            k = 0
             while p > l:
                 k += 1
                 p *= self._random.random()
         else:
             # switch to the log domain, k+1 expovariate (random + log) calls
             p = self._random.expovariate(mean)
-            k = 0
             while p < 1.0:
                 k += 1
                 p += self._random.expovariate(mean)
@@ -75,7 +74,7 @@ class RDDSampler(RDDSamplerBase):
                 # a sample with replacement is Poisson(frac). We use that to get a count for
                 # each element.
                 count = self.getPoissonSample(self._fraction)
-                for _ in range(0, count):
+                for _ in range(count):
                     yield obj
         else:
             for obj in iterator:
@@ -111,7 +110,7 @@ class RDDStratifiedSampler(RDDSamplerBase):
                 # a sample with replacement is Poisson(frac). We use that to get a count for
                 # each element.
                 count = self.getPoissonSample(self._fractions[key])
-                for _ in range(0, count):
+                for _ in range(count):
                     yield key, val
         else:
             for key, val in iterator:

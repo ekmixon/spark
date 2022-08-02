@@ -26,7 +26,7 @@ def _parse_args():
 def _kill_processes_listening_on_port(port):
     killed = set()
     for pid in _yield_processes_listening_on_port(port):
-        if not pid in killed:
+        if pid not in killed:
             killed.add(pid)
             os.kill(pid, signal.SIGTERM)
 
@@ -41,7 +41,7 @@ def _yield_processes_listening_on_port(port):
                                     stderr=subprocess.PIPE, universal_newlines=True)
     stdout, stderr = lsof_process.communicate()
     if lsof_process.returncode != 0:
-        raise OSError("Can't run lsof -P, stderr:\n{}".format(stderr))
+        raise OSError(f"Can't run lsof -P, stderr:\n{stderr}")
     for line in stderr.split("\n"):
         if not innocuous_errors.match(line):
             sys.stderr.write(line + "\n")

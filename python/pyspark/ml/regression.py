@@ -355,8 +355,9 @@ class LinearRegressionModel(_JavaRegressionModel, _LinearRegressionParams, Gener
         if self.hasSummary:
             return LinearRegressionTrainingSummary(super(LinearRegressionModel, self).summary)
         else:
-            raise RuntimeError("No training summary available for this %s" %
-                               self.__class__.__name__)
+            raise RuntimeError(
+                f"No training summary available for this {self.__class__.__name__}"
+            )
 
     def evaluate(self, dataset):
         """
@@ -371,7 +372,7 @@ class LinearRegressionModel(_JavaRegressionModel, _LinearRegressionParams, Gener
             instance of :py:class:`pyspark.sql.DataFrame`
         """
         if not isinstance(dataset, DataFrame):
-            raise TypeError("dataset must be a DataFrame but got %s." % type(dataset))
+            raise TypeError(f"dataset must be a DataFrame but got {type(dataset)}.")
         java_lr_summary = self._call_java("evaluate", dataset)
         return LinearRegressionSummary(java_lr_summary)
 
@@ -2278,8 +2279,9 @@ class GeneralizedLinearRegressionModel(_JavaRegressionModel, _GeneralizedLinearR
             return GeneralizedLinearRegressionTrainingSummary(
                 super(GeneralizedLinearRegressionModel, self).summary)
         else:
-            raise RuntimeError("No training summary available for this %s" %
-                               self.__class__.__name__)
+            raise RuntimeError(
+                f"No training summary available for this {self.__class__.__name__}"
+            )
 
     def evaluate(self, dataset):
         """
@@ -2294,7 +2296,7 @@ class GeneralizedLinearRegressionModel(_JavaRegressionModel, _GeneralizedLinearR
             instance of :py:class:`pyspark.sql.DataFrame`
         """
         if not isinstance(dataset, DataFrame):
-            raise TypeError("dataset must be a DataFrame but got %s." % type(dataset))
+            raise TypeError(f"dataset must be a DataFrame but got {type(dataset)}.")
         java_glr_summary = self._call_java("evaluate", dataset)
         return GeneralizedLinearRegressionSummary(java_glr_summary)
 

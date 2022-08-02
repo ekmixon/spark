@@ -25,12 +25,17 @@ sys.path.insert(0, os.path.abspath('.'))
 # Remove previously generated rst files. Ignore errors just in case it stops
 # generating whole docs.
 shutil.rmtree(
-    "%s/reference/api" % os.path.dirname(os.path.abspath(__file__)), ignore_errors=True)
+    f"{os.path.dirname(os.path.abspath(__file__))}/reference/api",
+    ignore_errors=True,
+)
+
 shutil.rmtree(
-    "%s/reference/pyspark.pandas/api" % os.path.dirname(os.path.abspath(__file__)),
-    ignore_errors=True)
+    f"{os.path.dirname(os.path.abspath(__file__))}/reference/pyspark.pandas/api",
+    ignore_errors=True,
+)
+
 try:
-    os.mkdir("%s/reference/api" % os.path.dirname(os.path.abspath(__file__)))
+    os.mkdir(f"{os.path.dirname(os.path.abspath(__file__))}/reference/api")
 except OSError as e:
     if e.errno != errno.EEXIST:
         raise

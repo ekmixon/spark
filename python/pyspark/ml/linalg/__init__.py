@@ -61,7 +61,7 @@ def _convert_to_vector(l):
             csc.sort_indices()
         return SparseVector(l.shape[0], csc.indices, csc.data)
     else:
-        raise TypeError("Cannot convert type %s into Vector" % type(l))
+        raise TypeError(f"Cannot convert type {type(l)} into Vector")
 
 
 def _vector_size(v):
@@ -93,12 +93,15 @@ def _vector_size(v):
         if v.ndim == 1 or (v.ndim == 2 and v.shape[1] == 1):
             return len(v)
         else:
-            raise ValueError("Cannot treat an ndarray of shape %s as a vector" % str(v.shape))
+            raise ValueError(
+                f"Cannot treat an ndarray of shape {str(v.shape)} as a vector"
+            )
+
     elif _have_scipy and scipy.sparse.issparse(v):
         assert v.shape[1] == 1, "Expected column vector"
         return v.shape[0]
     else:
-        raise TypeError("Cannot treat type %s as a vector" % type(v))
+        raise TypeError(f"Cannot treat type {type(v)} as a vector")
 
 
 def _format_float(f, digits=4):
@@ -400,7 +403,7 @@ class DenseVector(Vector):
         return "[" + ",".join([str(v) for v in self.array]) + "]"
 
     def __repr__(self):
-        return "DenseVector([%s])" % (', '.join(_format_float(i) for i in self.array))
+        return f"DenseVector([{', '.join((_format_float(i) for i in self.array))}])"
 
     def __eq__(self, other):
         if isinstance(other, DenseVector):
@@ -522,15 +525,16 @@ class SparseVector(Vector):
             for i in range(len(self.indices) - 1):
                 if self.indices[i] >= self.indices[i + 1]:
                     raise TypeError(
-                        "Indices %s and %s are not strictly increasing"
-                        % (self.indices[i], self.indices[i + 1]))
+                        f"Indices {self.indices[i]} and {self.indices[i + 1]} are not strictly increasing"
+                    )
+
 
         if self.indices.size > 0:
             assert np.max(self.indices) < self.size, \
-                "Index %d is out of the size of vector with size=%d" \
-                % (np.max(self.indices), self.size)
+                    "Index %d is out of the size of vector with size=%d" \
+                    % (np.max(self.indices), self.size)
             assert np.min(self.indices) >= 0, \
-                "Contains negative index %d" % (np.min(self.indices))
+                    "Contains negative index %d" % (np.min(self.indices))
 
     def numNonzeros(self):
         """
@@ -608,9 +612,8 @@ class SparseVector(Vector):
             self_values = self.values[self_cmind]
             if self_values.size == 0:
                 return 0.0
-            else:
-                other_cmind = np.in1d(other.indices, self.indices, assume_unique=True)
-                return np.dot(self_values, other.values[other_cmind])
+            other_cmind = np.in1d(other.indices, self.indices, assume_unique=True)
+            return np.dot(self_values, other.values[other_cmind])
 
         else:
             return self.dot(_convert_to_vector(other))
@@ -644,7 +647,7 @@ class SparseVector(Vector):
         """
         assert len(self) == _vector_size(other), "dimension mismatch"
 
-        if isinstance(other, np.ndarray) or isinstance(other, DenseVector):
+        if isinstance(other, (np.ndarray, DenseVector)):
             if isinstance(other, np.ndarray) and other.ndim != 1:
                 raise ValueError("Cannot call squared_distance with %d-dimensional array" %
                                  other.ndim)
@@ -710,7 +713,7 @@ class SparseVector(Vector):
     def __eq__(self, other):
         if isinstance(other, SparseVector):
             return other.size == self.size and np.array_equal(other.indices, self.indices) \
-                and np.array_equal(other.values, self.values)
+                    and np.array_equal(other.values, self.values)
         elif isinstance(other, DenseVector):
             if self.size != len(other):
                 return False
@@ -721,8 +724,7 @@ class SparseVector(Vector):
         inds = self.indices
         vals = self.values
         if not isinstance(index, int):
-            raise TypeError(
-                "Indices must be of type integer, got type %s" % type(index))
+            raise TypeError(f"Indices must be of type integer, got type {type(index)}")
 
         if index >= self.size or index < -self.size:
             raise IndexError("Index %d out of bounds." % index)
@@ -734,9 +736,7 @@ class SparseVector(Vector):
 
         insert_index = np.searchsorted(inds, index)
         row_ind = inds[insert_index]
-        if row_ind == index:
-            return vals[insert_index]
-        return 0.
+        return vals[insert_index] if row_ind == index else 0.
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1026,10 +1026,9 @@ class SparseMatrix(Matrix):
             if self.colPtrs.size != numRows + 1:
                 raise ValueError("Expected colPtrs of size %d, got %d."
                                  % (numRows + 1, self.colPtrs.size))
-        else:
-            if self.colPtrs.size != numCols + 1:
-                raise ValueError("Expected colPtrs of size %d, got %d."
-                                 % (numCols + 1, self.colPtrs.size))
+        elif self.colPtrs.size != numCols + 1:
+            raise ValueError("Expected colPtrs of size %d, got %d."
+                             % (numCols + 1, self.colPtrs.size))
         if self.rowIndices.size != self.values.size:
             raise ValueError("Expected rowIndices of length %d, got %d."
                              % (self.rowIndices.size, self.values.size))
@@ -1053,11 +1052,9 @@ class SparseMatrix(Matrix):
         (0,1) 3.0
         (1,1) 4.0
         """
-        spstr = "{0} X {1} ".format(self.numRows, self.numCols)
-        if self.isTransposed:
-            spstr += "CSRMatrix\n"
-        else:
-            spstr += "CSCMatrix\n"
+        spstr = "{0} X {1} ".format(self.numRows, self.numCols) + (
+            "CSRMatrix\n" if self.isTransposed else "CSCMatrix\n"
+        )
 
         cur_col = 0
         smlist = []
@@ -1141,10 +1138,7 @@ class SparseMatrix(Matrix):
         colEnd = self.colPtrs[j + 1]
         nz = self.rowIndices[colStart: colEnd]
         ind = np.searchsorted(nz, i) + colStart
-        if ind < colEnd and self.rowIndices[ind] == i:
-            return self.values[ind]
-        else:
-            return 0.0
+        return self.values[ind] if ind < colEnd and self.rowIndices[ind] == i else 0.0
 
     def toArray(self):
         """
